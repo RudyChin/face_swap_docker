@@ -7,9 +7,10 @@ access OpenGL.
 
 ### Install
 
-Install the docker image by `docker build -t ailabs/face_swap:opengl .`
-Fetch the models needed by `./fetch_data.sh`
+Install the docker image by `make docker-cpu`
+Fetch models by `./fetch_data.sh`
+Modify the `MODEL_PATH` variable in `run.sh` to point to the model path
 
 ### Demo
 
-Launch the docker image by `docker run -d -v $(PWD)/data:/root/face_swap/data:rw -p 6080:6080 ailabs/face_swap:opengl`
+Launch the docker image by `sudo ./run.sh cpu`
