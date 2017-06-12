@@ -30,7 +30,6 @@ RUN apt-get update && apt-get install -y \
 		vim \
 		wget \
 		zlib1g-dev \
-		qt5-default \
 		libvtk6-dev \
 		zlib1g-dev \
 		libjpeg-dev \
@@ -110,6 +109,23 @@ RUN pip --no-cache-dir install --upgrade ipython && \
 		zmq \
 		&& \
 	python -m ipykernel.kernelspec
+
+
+# Install Qt5.4
+RUN cd /root && \
+    wget https://download.qt.io/archive/qt/5.4/5.4.2/single/qt-everywhere-opensource-src-5.4.2.zip
+
+RUN cd /root && \
+    unzip -a qt-everywhere-opensource-src-5.4.2.zip
+
+RUN cd /root/qt-everywhere-opensource-src-5.4.2 && \
+    echo "o\nyes\n" | ./configure -qt-xcb && \
+    make -j"$(nproc)"  && \
+    make install && \
+    ldconfig
+
+ENV PATH /usr/local/Qt-5.4.2/bin:${PATH}
+ENV LD_LIBRARY_PATH /usr/local/Qt-5.4.2/lib:${LD_LIBRARY_PATH}
 
 # Install OpenCV
 RUN git clone https://github.com/opencv/opencv_contrib.git /root/opencv_contrib && \
