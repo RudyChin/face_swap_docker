@@ -11,7 +11,7 @@ if __name__ == '__main__':
         graphical_app = os.environ['APP']
         if os.environ.has_key('ARGS'):
             extra_args = os.environ['ARGS']
-            command = graphical_app + ' ' + extra_args
+            command = 'sudo ' + graphical_app + ' ' + extra_args
         else:
             command = graphical_app
 
