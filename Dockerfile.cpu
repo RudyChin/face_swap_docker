@@ -202,8 +202,9 @@ RUN git clone https://github.com/YuvalNirkin/face_segmentation.git /root/face_se
 
 RUN apt-get update && apt-get install -y libhdf5-cpp-11
 
+
 # Face Swap
-RUN git clone https://github.com/RudyChin/face_swap.git /root/face_swap && \
+RUN git clone https://github.com/RudyChin/face_swap /root/face_swap && \
     cd /root/face_swap && \
     mkdir build && \
     cd build && \

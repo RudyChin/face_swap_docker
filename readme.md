@@ -13,4 +13,4 @@ Modify the `MODEL_PATH` variable in `run.sh` to point to the model path
 
 ### Demo
 
-Launch the docker image by `sudo ./run.sh cpu`
+Launch the docker image by `sudo ./run.sh`
