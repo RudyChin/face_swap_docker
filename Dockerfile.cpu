@@ -164,16 +164,16 @@ RUN cd /root && \
     ldconfig
 
 # Install HDF5
-RUN cd /root && \
-    wget https://support.hdfgroup.org/ftp/HDF5/current18/src/hdf5-1.8.18.tar.bz2 && \
-    tar -jxf hdf5-1.8.18.tar.bz2 && \
-    cd hdf5-1.8.18 && \
-    mkdir build && \
-    cd build && \
-    cmake .. && \
-    make -j"$(nproc)" && \
-    make install && \
-    ldconfig
+#RUN cd /root && \
+#    wget https://support.hdfgroup.org/ftp/HDF5/current18/src/hdf5-1.8.18.tar.bz2 && \
+#    tar -jxf hdf5-1.8.18.tar.bz2 && \
+#    cd hdf5-1.8.18 && \
+#    mkdir build && \
+#    cd build && \
+#    cmake .. && \
+#    make -j"$(nproc)" && \
+#    make install && \
+#    ldconfig
 
     
 # Install boost
@@ -258,12 +258,23 @@ RUN git clone https://github.com/YuvalNirkin/face_segmentation.git /root/face_se
     make install && \
     ldconfig
 
-#RUN apt-get update && apt-get install -y libhdf5-cpp-11
+# Install HDF5
+RUN cd /root && \
+    wget https://support.hdfgroup.org/ftp/HDF5/current18/src/hdf5-1.8.18.tar.bz2 && \
+    tar -jxf hdf5-1.8.18.tar.bz2 && \
+    cd hdf5-1.8.18 && \
+    ./configure --prefix=/usr/local --enable-cxx --enable-fortran --enable-production && \
+    make -j"$(nproc)" && \
+    make install && \
+    ldconfig
 
+#RUN rm /usr/lib/x86_64-linux-gnu/libhdf5*
+#RUN rm /usr/lib/x86_64-linux-gnu/libdl* /usr/lib/x86_64-linux-gnu/libz* /usr/lib/x86_64-linux-gnu/libm*
+RUN ldconfig && ldconfig -p | grep dl
 
 # Face Swap
-RUN git clone https://github.com/RudyChin/face_swap /root/face_swap && \
-    cd /root/face_swap && \
+RUN git clone https://github.com/RudyChin/face_swap /root/FaceSwap && \
+    cd /root/FaceSwap && \
     mkdir build && \
     cd build && \
     cmake -DCMAKE_CXX_STANDARD=14 .. && \
@@ -318,6 +329,10 @@ COPY usr /usr
 ENV DISPLAY :0
 RUN ln -s /usr/lib64/libGLEW.so.2.0.0 /usr/lib/libGLEW.so.2.0
 RUN ldconfig
+ENV PATH /usr/local/Qt-5.4.2/bin:${PATH}
+ENV LD_LIBRARY_PATH /usr/local/Qt-5.4.2/lib:${LD_LIBRARY_PATH}
+RUN echo "/usr/local/Qt-5.4.2/lib" >> /etc/ld.so.conf.d/qt.conf && \
+    ldconfig
 
 WORKDIR /root
 
