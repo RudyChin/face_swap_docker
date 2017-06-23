@@ -1,0 +1,269 @@
+FROM nvidia/cuda:8.0-cudnn6-devel-ubuntu16.04
+MAINTAINER Rudy Chin <tingwuc@andrew.cmu.edu>
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        build-essential \
+        cmake \
+        git \
+        wget \
+        libatlas-base-dev \
+        libgflags-dev \
+        libgoogle-glog-dev \
+        libleveldb-dev \
+        liblmdb-dev \
+        libsnappy-dev \
+        python-dev \
+        python-numpy \
+        python-pip \
+        python-setuptools \
+        python-scipy && \
+    rm -rf /var/lib/apt/lists/*
+
+# Install some dependencies
+RUN apt-get update && apt-get install -y \
+		bc \
+		build-essential \
+		cmake \
+		curl \
+		g++ \
+		gfortran \
+		git \
+		libffi-dev \
+		libfreetype6-dev \
+		libjpeg-dev \
+		liblcms2-dev \
+		libopenblas-dev \
+		liblapack-dev \
+		libpng12-dev \
+		libssl-dev \
+		libtiff5-dev \
+		libwebp-dev \
+		libzmq3-dev \
+		nano \
+		pkg-config \
+		python-dev \
+		software-properties-common \
+		unzip \
+		vim \
+		wget \
+		zlib1g-dev \
+		libvtk6-dev \
+		zlib1g-dev \
+		libjpeg-dev \
+		libwebp-dev \
+		libpng-dev \
+		libtiff5-dev \
+		libjasper-dev \
+		libopenexr-dev \
+		libgdal-dev \
+		libdc1394-22-dev \
+		libavcodec-dev \
+		libavformat-dev \
+		libswscale-dev \
+		libtheora-dev \
+		libvorbis-dev \
+		libxvidcore-dev \
+		libx264-dev \
+		yasm \
+		libopencore-amrnb-dev \
+		libopencore-amrwb-dev \
+		libv4l-dev \
+		libxine2-dev \
+		libtbb-dev \
+		libeigen3-dev \
+		python-dev \
+		python-tk \
+		python-numpy \
+		ant \
+		default-jdk \
+		doxygen \
+		&& \
+	apt-get clean && \
+	apt-get autoremove && \
+	rm -rf /var/lib/apt/lists/* && \
+# Link BLAS library to use OpenBLAS using the alternatives mechanism (https://www.scipy.org/scipylib/building/linux.html#debian-ubuntu)
+	update-alternatives --set libblas.so.3 /usr/lib/openblas-base/libblas.so.3
+
+# Install pip
+RUN curl -O https://bootstrap.pypa.io/get-pip.py && \
+	python get-pip.py && \
+	rm get-pip.py
+
+# Add SNI support to Python
+RUN pip --no-cache-dir install \
+		pyopenssl \
+		ndg-httpsclient \
+		pyasn1
+
+# Install useful Python packages using apt-get to avoid version incompatibilities with Tensorflow binary
+# especially numpy, scipy, skimage and sklearn (see https://github.com/tensorflow/tensorflow/issues/2034)
+RUN apt-get update && apt-get install -y \
+		python-numpy \
+		python-scipy \
+		python-h5py \
+		python-matplotlib \
+		python-sklearn \
+		&& \
+	apt-get clean && \
+	apt-get autoremove && \
+	rm -rf /var/lib/apt/lists/*
+
+# Install other useful Python packages using pip
+RUN pip --no-cache-dir install --upgrade ipython && \
+	pip --no-cache-dir install \
+		Cython \
+		ipykernel \
+		jupyter \
+		path.py \
+		Pillow \
+		pygments \
+		six \
+		sphinx \
+		wheel \
+		zmq \
+		&& \
+	python -m ipykernel.kernelspec
+
+RUN apt-get update
+RUN DEBIAN_FRONTEND=noninteractive apt-get install -y x-window-system
+RUN apt-get install -y binutils
+RUN apt-get install -y mesa-utils
+RUN apt-get install -y module-init-tools
+
+ADD nvidia-driver.run /tmp/nvidia-driver.run
+RUN sh /tmp/nvidia-driver.run -a -N --ui=none --no-kernel-module
+RUN rm /tmp/nvidia-driver.run
+
+# Install Qt5.4
+RUN apt-get install -y qt5-default &&\
+    ldconfig
+#RUN cd /root && \
+#    wget https://download.qt.io/archive/qt/5.4/5.4.2/single/qt-everywhere-opensource-src-5.4.2.zip
+
+#RUN cd /root && \
+#    unzip -a qt-everywhere-opensource-src-5.4.2.zip
+
+#RUN cd /root/qt-everywhere-opensource-src-5.4.2 && \
+#    echo "o\nyes\n" | ./configure -qt-xcb && \
+#    make -j"$(nproc)"  && \
+#    make install && \
+#    ldconfig
+
+#ENV PATH /usr/local/Qt-5.4.2/bin:${PATH}
+#ENV LD_LIBRARY_PATH /usr/local/Qt-5.4.2/lib:${LD_LIBRARY_PATH}
+
+RUN rm /usr/lib/x86_64-linux-gnu/libEGL.so &&\
+    ln /usr/lib/x86_64-linux-gnu/libEGL.so.1 /usr/lib/x86_64-linux-gnu/libEGL.so
+
+# Install OpenCV
+RUN git clone --depth 1 https://github.com/opencv/opencv.git /root/opencv && \
+	cd /root/opencv && \
+	mkdir build && \
+	cd build && \
+	cmake -DWITH_QT=ON -DWITH_OPENGL=ON -DFORCE_VTK=ON -DWITH_TBB=ON -DWITH_GDAL=ON -DWITH_XINE=ON -DBUILD_EXAMPLES=ON .. && \
+	make -j"$(nproc)"  && \
+	make install && \
+	ldconfig && \
+	echo 'ln /dev/null /dev/raw1394' >> ~/.bashrc
+
+# Install GLEW
+RUN cd /root && \
+    wget https://sourceforge.net/projects/glew/files/glew/2.0.0/glew-2.0.0.zip/download && \
+    unzip -a download && \
+    rm download && \
+    cd /root/glew-2.0.0 && \
+    make -j"$(nproc)" && \
+    make install
+
+RUN ln -s /usr/lib64/libGLEW.so.2.0.0 /usr/lib/libGLEW.so.2.0
+RUN ldconfig
+
+# Install boost
+RUN apt-get update && apt-get install -y libboost-all-dev 
+
+# DLIB
+RUN git clone https://github.com/davisking/dlib /root/dlib && \
+    cd /root/dlib && \
+    mkdir build && \
+    cd build && \
+    cmake .. && \
+    make -j"$(nproc)" && \
+    make install && \
+    ldconfig
+
+RUN apt-get update && apt-get install -y autoconf libtool
+
+
+RUN git clone https://github.com/google/protobuf.git /root/protobuf && \
+    cd /root/protobuf && \
+    ./autogen.sh && \
+    ./configure --prefix=/usr/local && \
+    make -j"$(nproc)" && \
+    make install && \
+    ldconfig
+
+
+# Caffe
+ENV CAFFE_ROOT=/opt/caffe
+WORKDIR $CAFFE_ROOT
+
+# FIXME: use ARG instead of ENV once DockerHub supports this
+# https://github.com/docker/hub-feedback/issues/460
+ENV CLONE_TAG=1.0
+
+RUN git clone -b ${CLONE_TAG} --depth 1 https://github.com/BVLC/caffe.git . && \
+    pip install --upgrade pip && \
+    cd python && for req in $(cat requirements.txt) pydot; do pip install $req; done && cd .. && \
+    git clone https://github.com/NVIDIA/nccl.git && cd nccl && make -j install && cd .. && rm -rf nccl && \
+    mkdir build && cd build && \
+    cmake -DUSE_CUDNN=1 -DUSE_NCCL=1 .. && \
+    make -j"$(nproc)"
+
+ENV PYCAFFE_ROOT $CAFFE_ROOT/python
+ENV PYTHONPATH $PYCAFFE_ROOT:$PYTHONPATH
+ENV PATH $CAFFE_ROOT/build/tools:$PYCAFFE_ROOT:$PATH
+RUN echo "$CAFFE_ROOT/build/lib" >> /etc/ld.so.conf.d/caffe.conf && ldconfig
+
+
+# Find Face Landmarks
+RUN git clone https://github.com/YuvalNirkin/find_face_landmarks.git /root/find_face_landmarks && \
+    cd /root/find_face_landmarks && \
+    mkdir build && \
+    cd build && \
+    cmake -DCMAKE_CXX_STANDARD=14 .. && \
+    make -j"$(nproc)" && \
+    make install && \
+    ldconfig
+
+RUN cd /opt/caffe && \
+    protoc src/caffe/proto/caffe.proto --cpp_out=. && \
+    mkdir include/caffe/proto && \
+    mv src/caffe/proto/caffe.pb.h include/caffe/proto
+
+# Face Segmentation
+RUN git clone https://github.com/YuvalNirkin/face_segmentation.git /root/face_segmentation && \
+    cd /root/face_segmentation && \
+    mkdir build && \
+    cd build && \
+    cmake -DCMAKE_CXX_STANDARD=14 .. && \
+    make -j"$(nproc)" && \
+    make install && \
+    ldconfig
+
+# Install HDF5
+RUN apt-get install -y libhdf5-serial-dev && \
+    ldconfig
+
+# Face Swap
+RUN git clone https://github.com/RudyChin/face_swap.git /root/face_swap && \
+    cd /root/face_swap && \
+    mkdir build && \
+    cd build && \
+    cmake -DCMAKE_CXX_STANDARD=14 .. && \
+    make -j"$(nproc)" && \
+    make install && \
+    ldconfig
+ENV LD_LIBRARY_PATH /usr/local/lib:$LD_LIBRARY_PATH
+ENV PATH /usr/local/bin:$PATH
+ENV PYTHONPATH /usr/local/lib:$PYTHONPATH
+WORKDIR /root/face_swap
