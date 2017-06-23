@@ -254,6 +254,8 @@ RUN git clone https://github.com/YuvalNirkin/face_segmentation.git /root/face_se
 RUN apt-get install -y libhdf5-serial-dev && \
     ldconfig
 
+RUN pip install --extra-index-url https://lab.pages.ailabs.tw/jarvis/ ailabs.jarvis
+
 # Face Swap
 RUN git clone https://github.com/RudyChin/face_swap.git /root/face_swap && \
     cd /root/face_swap && \
@@ -267,3 +269,4 @@ ENV LD_LIBRARY_PATH /usr/local/lib:$LD_LIBRARY_PATH
 ENV PATH /usr/local/bin:$PATH
 ENV PYTHONPATH /usr/local/lib:$PYTHONPATH
 WORKDIR /root/face_swap
+
