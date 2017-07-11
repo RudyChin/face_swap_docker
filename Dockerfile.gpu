@@ -256,15 +256,32 @@ RUN apt-get install -y libhdf5-serial-dev && \
 
 RUN pip install --extra-index-url https://lab.pages.ailabs.tw/jarvis/ ailabs.jarvis
 
-# Face Swap
-RUN git clone https://github.com/RudyChin/face_swap.git /root/face_swap && \
-    cd /root/face_swap && \
+# yolo
+COPY yolo.so /root/yolo.so
+RUN cd /root/yolo.so && \
+    make -j"$(nproc)" && \
+    make install && \
+    ldconfig
+
+COPY face_swap /root/face_swap
+RUN cd /root/face_swap && \
     mkdir build && \
     cd build && \
     cmake -DCMAKE_CXX_STANDARD=14 .. && \
     make -j"$(nproc)" && \
     make install && \
     ldconfig
+
+# KCF
+RUN git clone https://github.com/RudyChin/KCFcpp.git /root/KCFcpp && \
+    cd /root/KCFcpp && \
+    mkdir build && \
+    cd build && \
+    cmake .. && \
+    make -j"$(nproc)" && \
+    make install && \
+    ldconfig
+
 ENV LD_LIBRARY_PATH /usr/local/lib:$LD_LIBRARY_PATH
 ENV PATH /usr/local/bin:$PATH
 ENV PYTHONPATH /usr/local/lib:$PYTHONPATH
