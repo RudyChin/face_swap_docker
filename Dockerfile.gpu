@@ -137,20 +137,6 @@ RUN rm /tmp/nvidia-driver.run
 # Install Qt5.4
 RUN apt-get install -y qt5-default &&\
     ldconfig
-#RUN cd /root && \
-#    wget https://download.qt.io/archive/qt/5.4/5.4.2/single/qt-everywhere-opensource-src-5.4.2.zip
-
-#RUN cd /root && \
-#    unzip -a qt-everywhere-opensource-src-5.4.2.zip
-
-#RUN cd /root/qt-everywhere-opensource-src-5.4.2 && \
-#    echo "o\nyes\n" | ./configure -qt-xcb && \
-#    make -j"$(nproc)"  && \
-#    make install && \
-#    ldconfig
-
-#ENV PATH /usr/local/Qt-5.4.2/bin:${PATH}
-#ENV LD_LIBRARY_PATH /usr/local/Qt-5.4.2/lib:${LD_LIBRARY_PATH}
 
 RUN rm /usr/lib/x86_64-linux-gnu/libEGL.so &&\
     ln /usr/lib/x86_64-linux-gnu/libEGL.so.1 /usr/lib/x86_64-linux-gnu/libEGL.so
@@ -164,6 +150,7 @@ RUN git clone --depth 1 https://github.com/opencv/opencv.git /root/opencv && \
 	make -j"$(nproc)"  && \
 	make install && \
 	ldconfig && \
+    cd /root && rm -rf /root/opencv \
 	echo 'ln /dev/null /dev/raw1394' >> ~/.bashrc
 
 # Install GLEW
@@ -189,6 +176,7 @@ RUN git clone https://github.com/davisking/dlib /root/dlib && \
     cmake .. && \
     make -j"$(nproc)" && \
     make install && \
+    cd /root && rm -rf /root/dlib \
     ldconfig
 
 RUN apt-get update && apt-get install -y autoconf libtool
@@ -216,24 +204,13 @@ RUN git clone -b ${CLONE_TAG} --depth 1 https://github.com/BVLC/caffe.git . && \
     cd python && for req in $(cat requirements.txt) pydot; do pip install $req; done && cd .. && \
     git clone https://github.com/NVIDIA/nccl.git && cd nccl && make -j install && cd .. && rm -rf nccl && \
     mkdir build && cd build && \
-    cmake -DUSE_CUDNN=1 -DUSE_NCCL=1 .. && \
+    cmake -DUSE_CUDNN=1 -DUSE_NCCL=1 -DCMAKE_CXX_STANDARD=11 .. && \
     make -j"$(nproc)"
 
 ENV PYCAFFE_ROOT $CAFFE_ROOT/python
 ENV PYTHONPATH $PYCAFFE_ROOT:$PYTHONPATH
 ENV PATH $CAFFE_ROOT/build/tools:$PYCAFFE_ROOT:$PATH
 RUN echo "$CAFFE_ROOT/build/lib" >> /etc/ld.so.conf.d/caffe.conf && ldconfig
-
-
-# Find Face Landmarks
-RUN git clone https://github.com/YuvalNirkin/find_face_landmarks.git /root/find_face_landmarks && \
-    cd /root/find_face_landmarks && \
-    mkdir build && \
-    cd build && \
-    cmake -DCMAKE_CXX_STANDARD=14 .. && \
-    make -j"$(nproc)" && \
-    make install && \
-    ldconfig
 
 RUN cd /opt/caffe && \
     protoc src/caffe/proto/caffe.proto --cpp_out=. && \
@@ -248,6 +225,7 @@ RUN git clone https://github.com/YuvalNirkin/face_segmentation.git /root/face_se
     cmake -DCMAKE_CXX_STANDARD=14 .. && \
     make -j"$(nproc)" && \
     make install && \
+    cd /root && rm -rf /root/face_segmentation \
     ldconfig
 
 # Install HDF5
@@ -261,15 +239,7 @@ COPY yolo.so /root/yolo.so
 RUN cd /root/yolo.so && \
     make -j"$(nproc)" && \
     make install && \
-    ldconfig
-
-COPY face_swap /root/face_swap
-RUN cd /root/face_swap && \
-    mkdir build && \
-    cd build && \
-    cmake -DCMAKE_CXX_STANDARD=14 .. && \
-    make -j"$(nproc)" && \
-    make install && \
+    cd /root && rm -rf /root/yolo.so \
     ldconfig
 
 # KCF
@@ -278,6 +248,17 @@ RUN git clone https://github.com/RudyChin/KCFcpp.git /root/KCFcpp && \
     mkdir build && \
     cd build && \
     cmake .. && \
+    make -j"$(nproc)" && \
+    make install && \
+    cd /root && rm -rf /root/KCFapp \
+    ldconfig
+
+
+COPY face_swap /root/face_swap
+RUN cd /root/face_swap && \
+    mkdir build && \
+    cd build && \
+    cmake -DCMAKE_CXX_STANDARD=14 .. && \
     make -j"$(nproc)" && \
     make install && \
     ldconfig
