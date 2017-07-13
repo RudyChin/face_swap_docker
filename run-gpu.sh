@@ -20,6 +20,6 @@ nvidia-docker run \
 	-v ${IMAGE_PATH}:/root/face_swap/data/images \
 	-v ${OUTPUT_PATH}:/root/face_swap/data/output \
     $2 \
-    registry.corp.ailabs.tw/rudychin/face-swap:gpu \
+    registry.corp.ailabs.tw/lab/face-swap:gpu \
     /bin/bash
     #${TEST_PROGRAM}
