@@ -16,6 +16,7 @@ Install the docker image by `make docker-cpu`
 ## GPU
 
 Install the docker image by `./build-gpu.sh` (It will get nvidia-driver.run for you)
+You should prepare `nvidia-driver.run` with the same driver version installed on the host
 
 # Demo
 
