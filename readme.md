@@ -21,7 +21,7 @@ yolo.so: `git clone https://github.com/RudyChin/yolo.so.git`
 Download [dfm_cnn_resnet_101](https://drive.google.com/file/d/0B8k2u9qYUPLca1RKXzBRb3l5TzQ/view?usp=sharing) and put them under models folder.
 
 # Existing Image
-`docker pull rudychin/face_swap_docker`
+`docker pull rudychin/face_swap_docker:gpu`
 
 # Install
 
