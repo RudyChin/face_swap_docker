@@ -17,9 +17,37 @@ yolo.so: `git clone git@gitlab.corp.ailabs.tw:lab/py_yolo.git -b so`
 Install the docker image by `./build-gpu.sh` (It will get nvidia-driver.run for you)
 You should prepare `nvidia-driver.run` with the same driver version installed on the host
 
+There are several variables to be set in `run-gpu.sh` 
+
+Please set `MODEL_PATH` to path that contains the following models:
+1. landmarks, e.g. shape_predictor_68_face_landmarks.dat
+2. model_3dmm_h5, e.g. BaselFaceModel_mod_wForehead_noEars.h5
+3. model_3dmm_dat, e.g. BaselFace.dat
+4. reg_model, e.g. dfm_resnet_101.caffemodel
+5. reg_deploy, e.g. dfm_resnet_101_deploy.prototxt
+6. reg_mean, e.g. dfm_resnet_101_mean.binaryproto
+7. seg_model, e.g. face_seg_fcn8s.caffemodel
+8. seg_deploy, e.g. face_seg_fcn8s_deploy.prototxt
+
+Please set `IMAGE_PATH` to contain the source images, e.g. Brad Pitt
+
 # Run
 
-    ./run-gpu.sh 8899 # Or any port you want
+To run test on GPU 0:
+
+    ./run-gpu.sh test 0
+
+To run default service high quality service on GPU 0 (port 8899):
+
+    ./run-gpu.sh defaultHigh 0
+
+To run default service low quality service on GPU 0 (port 2266):
+
+    ./run-gpu.sh defaultLow 0
+
+To run custom service:
+
+    ./run-gpu.sh "/usr/bin/python /root/face_swap/py_face_swap/fs_service.py --port 2266 --gpu 0 --highQual 0 --idol 0" 2266
 
 # Switch Algorithms (KCF / DLIB+YOLO)
 
@@ -38,18 +66,6 @@ You should prepare `nvidia-driver.run` with the same driver version installed on
     docekr# make install
 
 # Notes for run-gpu.sh
-
-Please set `MODEL_PATH` to path that contains the following models:
-1. landmarks, e.g. shape_predictor_68_face_landmarks.dat
-2. model_3dmm_h5, e.g. BaselFaceModel_mod_wForehead_noEars.h5
-3. model_3dmm_dat, e.g. BaselFace.dat
-4. reg_model, e.g. dfm_resnet_101.caffemodel
-5. reg_deploy, e.g. dfm_resnet_101_deploy.prototxt
-6. reg_mean, e.g. dfm_resnet_101_mean.binaryproto
-7. seg_model, e.g. face_seg_fcn8s.caffemodel
-8. seg_deploy, e.g. face_seg_fcn8s_deploy.prototxt
-
-Please set `IMAGE_PATH` to contain the source images, e.g. Brad Pitt
 
 The parameters given to the docker in `run-gpu.sh` is essential to enable OpenGL.
 You should especially take care of `-e DISPLAY=:0`. It should bind to the display.
