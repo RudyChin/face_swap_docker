@@ -1,3 +1,6 @@
+# Acknowledgement
+This work is done when the author is interning at AILabs.tw
+
 # Dockerized Fast Face Swap
 
 This is a container for Fast Face Swap inherited from [YuvalNirkin/face_swap](https://github.com/YuvalNirkin/face_swap) with all dependency installed.
@@ -9,8 +12,11 @@ access OpenGL.
 
 You must have face_swap and yolo.so under this folder.
 You can clone them from Gitlab
-face_swap: `git clone git@gitlab.corp.ailabs.tw:lab/face_swap.git` (Default branch is kcf)
-yolo.so: `git clone git@gitlab.corp.ailabs.tw:lab/py_yolo.git -b so`
+face_swap: `git clone https://github.com/RudyChin/face_swap -b kcf` (Default branch is kcf)
+yolo.so: `git clone https://github.com/RudyChin/yolo.so.git`
+
+# Existing Image
+`docker pull rudychin/face_swap_docker`
 
 # Install
 
@@ -37,17 +43,6 @@ To run test on GPU 0:
 
     ./run-gpu.sh test 0
 
-To run default service high quality service on GPU 0 (port 8899):
-
-    ./run-gpu.sh defaultHigh 0
-
-To run default service low quality service on GPU 0 (port 2266):
-
-    ./run-gpu.sh defaultLow 0
-
-To run custom service:
-
-    ./run-gpu.sh "/usr/bin/python /root/face_swap/py_face_swap/fs_service.py --port 2266 --gpu 0 --highQual 0 --idol 0" 2266
 
 Noted that there are several idols to pick from:
 0 (Brad Pitt), 1 (Emma Stone), 2 (Emma Watson), 3 (Donald Trump), 4 (Aniki), 5 (Nick Young)
