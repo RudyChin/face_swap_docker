@@ -49,6 +49,10 @@ To run custom service:
 
     ./run-gpu.sh "/usr/bin/python /root/face_swap/py_face_swap/fs_service.py --port 2266 --gpu 0 --highQual 0 --idol 0" 2266
 
+Noted that there are several idols to pick from:
+0 (Brad Pitt), 1 (Emma Stone), 2 (Emma Watson), 3 (Donald Trump), 4 (Aniki), 5 (Nick Young)
+To change source idols, please modify codes in `face_swap/py_face_swap/fs_service.py`
+
 # Switch Algorithms (KCF / DLIB+YOLO)
 
 ## Method 1
