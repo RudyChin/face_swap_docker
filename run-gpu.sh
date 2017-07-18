@@ -35,5 +35,5 @@ nvidia-docker run \
 	-v ${MODEL_PATH}:/root/face_swap/data/models \
 	-v ${IMAGE_PATH}:/root/face_swap/data/images \
 	-v ${OUTPUT_PATH}:/root/face_swap/data/output \
-    rudychin/face_swap:gpu \
+    rudychin/face_swap_docker:gpu \
     ${CMD}
