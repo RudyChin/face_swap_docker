@@ -8,9 +8,9 @@
 #     ./run-gpu.sh {CMD} {PORT}
 #
 
-MODEL_PATH='/data/rudychin/face-swap/data/models'
-IMAGE_PATH='/data/rudychin/face-swap/data/images'
-OUTPUT_PATH='/data/rudychin/face-swap/data/output'
+MODEL_PATH='/data/face_swap/data/models'
+IMAGE_PATH='/data/face_swap/data/images'
+OUTPUT_PATH='/data/face_swap/data/output'
 PORT=8899
 
 XSOCK=/tmp/.X11-unix
